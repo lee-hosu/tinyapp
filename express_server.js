@@ -7,13 +7,16 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.com',
 };
 
+// CONFIG for rendering EJS templates
 app.set('view engine', 'ejs');
 
+//ROUTE
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render('urls_index', templateVars);
 });
 
+// :id - variable part of the URL ex. /urls/b2xVn2
 app.get('/urls/:id', (req, res) => {
   const templateVars = {
     id: req.params.id,
@@ -34,6 +37,7 @@ app.get('/hello', (req, res) => {
   res.send('<html><body>Hello <b>World</b></body></html>\n');
 });
 
+//LISTEN
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
