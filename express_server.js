@@ -32,9 +32,13 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
 
+// Form submit - post request
 app.post('/urls', (req, res) => {
   console.log(req.body); // Log the POST request body to the console
-  res.send('Ok'); // Respond with 'Ok' (we will replace this)
+  urlDatabase[randomString] = req.body['longURL'];
+  console.log(urlDatabase);
+  res.redirect(`/urls/${randomString}`);
+  // res.send('Ok'); // Respond with 'Ok' (we will replace this)
 });
 
 app.get('/urls', (req, res) => {
@@ -51,6 +55,13 @@ app.get('/urls/:id', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+// redirect to long URL
+app.get('/u/:id', (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
+});
+
+// EXAMPLE CODE
 app.get('/', (req, res) => {
   res.send('Hello!');
 });
