@@ -28,17 +28,9 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 
 // ROUTE
+// READ
 app.get('/urls/new', (req, res) => {
   res.render('urls_new');
-});
-
-// Form submit - post request
-app.post('/urls', (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  urlDatabase[randomString] = req.body['longURL'];
-  console.log(urlDatabase);
-  res.redirect(`/urls/${randomString}`);
-  // res.send('Ok'); // Respond with 'Ok' (we will replace this)
 });
 
 app.get('/urls', (req, res) => {
@@ -59,6 +51,27 @@ app.get('/urls/:id', (req, res) => {
 app.get('/u/:id', (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
+});
+
+// CREATE
+// Form submit - post request
+app.post('/urls', (req, res) => {
+  console.log(req.body); // Log the POST request body to the console
+  urlDatabase[randomString] = req.body['longURL'];
+  console.log(urlDatabase);
+  res.redirect(`/urls/${randomString}`);
+  // res.send('Ok'); // Respond with 'Ok' (we will replace this)
+});
+
+// Delete URL
+app.post('/urls/:id/delete', (req, res) => {
+  const id = req.params.id;
+  for (let key in urlDatabase) {
+    if (key === id) {
+      delete urlDatabase[key];
+    }
+  }
+  res.redirect('/urls');
 });
 
 // EXAMPLE CODE
