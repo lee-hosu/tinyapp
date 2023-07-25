@@ -31,7 +31,8 @@ app.use(cookieParser());
 // ROUTE
 // READ
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  const templateVars = { username: req.cookies['username'], urls: urlDatabase };
+  res.render('urls_new', templateVars);
 });
 
 app.get('/urls', (req, res) => {
@@ -42,6 +43,7 @@ app.get('/urls', (req, res) => {
 // :id - variable part of the URL ex. /urls/b2xVn2
 app.get('/urls/:id', (req, res) => {
   const templateVars = {
+    username: req.cookies['username'],
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
   };
@@ -89,6 +91,11 @@ app.post('/login', (req, res) => {
   const newUser = req.body.username;
   console.log(newUser);
   res.cookie('username', `${newUser}`);
+  res.redirect('/urls');
+});
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
   res.redirect('/urls');
 });
 

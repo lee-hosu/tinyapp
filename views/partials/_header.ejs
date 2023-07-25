@@ -20,8 +20,11 @@
       <div class="navbar-login col text-right">
         <div class="form-group">
           <form method="POST" action="/login">
-            <% if (username) { %>
+            <% if (username !== "undefined"){%>
             <span>Logged in as: <%= username %></span>
+            <form method="POST" action="/logout">
+              <button type="submit" class="btn btn-outline-dark">Logout</button>
+            </form>
             <% } else { %>
             <input
               type="text"
@@ -29,8 +32,8 @@
               placeholder="Username"
               class="username-input"
             />
-            <% } %>
             <button type="submit" class="btn btn-outline-dark">Login</button>
+            <% } %>
           </form>
         </div>
       </div>
