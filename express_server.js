@@ -18,7 +18,6 @@ function generateRandomString(length) {
   }
   return randomString;
 }
-const randomString = generateRandomString(6);
 
 // CONFIG for rendering EJS templates
 app.set('view engine', 'ejs');
@@ -57,6 +56,7 @@ app.get('/u/:id', (req, res) => {
 // Form submit - post request
 app.post('/urls', (req, res) => {
   console.log(req.body); // Log the POST request body to the console
+  const randomString = generateRandomString(6);
   urlDatabase[randomString] = req.body['longURL'];
   console.log(urlDatabase);
   res.redirect(`/urls/${randomString}`);
