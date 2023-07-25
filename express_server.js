@@ -82,6 +82,14 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect('/urls');
 });
 
+// Login
+app.post('/login', (req, res) => {
+  const newUser = req.body.username;
+  console.log(newUser);
+  res.cookie('username', `${newUser}`);
+  res.redirect('/urls');
+});
+
 // EXAMPLE CODE
 app.get('/', (req, res) => {
   res.send('Hello!');
