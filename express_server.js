@@ -8,6 +8,19 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.com',
 };
 
+const users = {
+  userRandomID: {
+    id: 'userRandomID',
+    email: 'user@example.com',
+    password: 'purple-monkey-dinosaur',
+  },
+  user2RandomID: {
+    id: 'user2RandomID',
+    email: 'user2@example.com',
+    password: 'dishwasher-funk',
+  },
+};
+
 function generateRandomString(length) {
   const characters =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -56,6 +69,10 @@ app.get('/u/:id', (req, res) => {
   res.redirect(longURL);
 });
 
+app.get('/register', (req, res) => {
+  res.render('url_register');
+});
+
 // CREATE
 // Form submit - post request
 app.post('/urls', (req, res) => {
@@ -86,7 +103,7 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect('/urls');
 });
 
-// Login
+// Login & Logout
 app.post('/login', (req, res) => {
   const newUser = req.body.username;
   console.log(newUser);
@@ -96,6 +113,19 @@ app.post('/login', (req, res) => {
 
 app.post('/logout', (req, res) => {
   res.clearCookie('username');
+  res.redirect('/urls');
+});
+
+// User Registration
+app.post('/register', (req, res) => {
+  const randomString = generateRandomString(6);
+  users[randomString] = {
+    id: randomString,
+    email: req.body.email,
+    password: req.body.password,
+  };
+  res.cookie('user_id', randomString);
+  console.log(users);
   res.redirect('/urls');
 });
 
