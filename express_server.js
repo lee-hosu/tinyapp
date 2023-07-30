@@ -2,6 +2,11 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080; // default port 8080
+const {
+  generateRandomString,
+  getUserByEmail,
+  addNewUser,
+} = require('./helpers');
 
 const urlDatabase = {
   b2xVn2: 'http://www.lighthouselabs.ca',
@@ -20,18 +25,6 @@ const users = {
     password: '1234',
   },
 };
-
-function generateRandomString(length) {
-  const characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  let randomString = '';
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * charactersLength);
-    randomString += characters.charAt(randomIndex);
-  }
-  return randomString;
-}
 
 // CONFIG for rendering EJS templates
 app.set('view engine', 'ejs');
@@ -72,14 +65,6 @@ app.get('/u/:id', (req, res) => {
   res.redirect(longURL);
 });
 
-app.get('/register', (req, res) => {
-  const user = users[req.cookies['userId']];
-  const templateVars = {
-    user,
-  };
-  res.render('url_register', templateVars);
-});
-
 // CREATE
 // Form submit - post request
 app.post('/urls', (req, res) => {
@@ -114,19 +99,10 @@ app.post('/urls/:id/delete', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-
+  const foundUser = getUserByEmail(email, users);
   if (!email || !password) {
     res.status(400).send('You must provide an email AND a password');
   }
-
-  let foundUser = null;
-
-  for (let userId in users) {
-    if (users[userId].email === email) {
-      foundUser = users[userId];
-    }
-  }
-  console.log(foundUser);
   // Did not find a user
   if (!foundUser) {
     return res.status(400).send('No user with that email');
@@ -148,17 +124,17 @@ app.post('/logout', (req, res) => {
 });
 
 // User Registration
+app.get('/register', (req, res) => {
+  const user = users[req.cookies['userId']];
+  const templateVars = {
+    user,
+  };
+  res.render('url_register', templateVars);
+});
+
 app.post('/register', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const randomString = generateRandomString(6);
-  const addNewUser = function () {
-    users[randomString] = {
-      id: randomString,
-      email: email,
-      password: password,
-    };
-  };
 
   // if user does NOT put in a password or email
   if (!email || !password) {
@@ -166,13 +142,12 @@ app.post('/register', (req, res) => {
   }
 
   // if user email already exist
-  for (const userId in users) {
-    if (users[userId].email === email) {
-      return res.status(400).send(`You've already registered`);
-    }
+  if (getUserByEmail(email, users)) {
+    return res.status(400).send(`You've already registered`);
   }
-  addNewUser();
-  res.cookie('userId', users[randomString].id);
+
+  const updateUsers = addNewUser(email, password, users);
+  res.cookie('userId', updateUsers);
   console.log('new email registered:', users);
   res.redirect('/urls');
 });
