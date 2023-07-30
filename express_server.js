@@ -96,6 +96,11 @@ app.post('/urls/:id/delete', (req, res) => {
 });
 
 // Login
+app.get('/login', (req, res) => {
+  const user = users[req.cookies['userId']];
+  const templateVars = { user, urls: urlDatabase };
+  res.render('urls_login', templateVars);
+});
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
