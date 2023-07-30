@@ -19,18 +19,22 @@
       </div>
       <div class="navbar-login col text-right">
         <div class="form-group">
-          <form method="POST" action="/login">
-            <% if (username !== "undefined"){%>
-            <span>Logged in as: <%= username %></span>
-            <form method="POST" action="/logout">
-              <button type="submit" class="btn btn-outline-dark">Logout</button>
-            </form>
+          <form method="POST" action="<%= user ? '/logout' : '/login' %>">
+            <% if (user){%>
+            <span>Logged in as: <%= user.email %></span>
+            <button type="submit" class="btn btn-outline-dark">Logout</button>
             <% } else { %>
             <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              class="username-input"
+              type="email"
+              name="email"
+              placeholder="Your Email"
+              class="email-input"
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="password"
+              class="password-input"
             />
             <button type="submit" class="btn btn-outline-dark">Login</button>
             <% } %>

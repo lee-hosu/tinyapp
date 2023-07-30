@@ -9,15 +9,15 @@ const urlDatabase = {
 };
 
 const users = {
-  userRandomID: {
-    id: 'userRandomID',
-    email: 'user@example.com',
-    password: 'purple-monkey-dinosaur',
+  abcd: {
+    id: 'abcd',
+    email: 'a@a.com',
+    password: '1234',
   },
-  user2RandomID: {
-    id: 'user2RandomID',
-    email: 'user2@example.com',
-    password: 'dishwasher-funk',
+  efgh: {
+    id: 'efgh',
+    email: 'b@b.com',
+    password: '1234',
   },
 };
 
@@ -44,19 +44,22 @@ app.use(cookieParser());
 // ROUTE
 // READ
 app.get('/urls/new', (req, res) => {
-  const templateVars = { username: req.cookies['username'], urls: urlDatabase };
+  const user = users[req.cookies['userId']];
+  const templateVars = { user, urls: urlDatabase };
   res.render('urls_new', templateVars);
 });
 
 app.get('/urls', (req, res) => {
-  const templateVars = { username: req.cookies['username'], urls: urlDatabase };
+  const user = users[req.cookies['userId']];
+  const templateVars = { user, urls: urlDatabase };
   res.render('urls_index', templateVars);
 });
 
 // :id - variable part of the URL ex. /urls/b2xVn2
 app.get('/urls/:id', (req, res) => {
+  const user = users[req.cookies['userId']];
   const templateVars = {
-    username: req.cookies['username'],
+    user,
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
   };
@@ -70,7 +73,11 @@ app.get('/u/:id', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  res.render('url_register');
+  const user = users[req.cookies['userId']];
+  const templateVars = {
+    user,
+  };
+  res.render('url_register', templateVars);
 });
 
 // CREATE
@@ -103,29 +110,70 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect('/urls');
 });
 
-// Login & Logout
+// Login
 app.post('/login', (req, res) => {
-  const newUser = req.body.username;
-  console.log(newUser);
-  res.cookie('username', `${newUser}`);
+  const email = req.body.email;
+  const password = req.body.password;
+
+  if (!email || !password) {
+    res.status(400).send('You must provide an email AND a password');
+  }
+
+  let foundUser = null;
+
+  for (let userId in users) {
+    if (users[userId].email === email) {
+      foundUser = users[userId];
+    }
+  }
+  console.log(foundUser);
+  // Did not find a user
+  if (!foundUser) {
+    return res.status(400).send('No user with that email');
+  }
+
+  // If the password is incorrect
+  if (foundUser.password !== password) {
+    return res.status(400).send('You got the wrong password');
+  }
+
+  res.cookie('userId', foundUser.id);
   res.redirect('/urls');
 });
 
+//Logout
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('userId');
   res.redirect('/urls');
 });
 
 // User Registration
 app.post('/register', (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
   const randomString = generateRandomString(6);
-  users[randomString] = {
-    id: randomString,
-    email: req.body.email,
-    password: req.body.password,
+  const addNewUser = function () {
+    users[randomString] = {
+      id: randomString,
+      email: email,
+      password: password,
+    };
   };
-  res.cookie('user_id', randomString);
-  console.log(users);
+
+  // if user does NOT put in a password or email
+  if (!email || !password) {
+    res.status(400).send('You must provide an email AND a password');
+  }
+
+  // if user email already exist
+  for (const userId in users) {
+    if (users[userId].email === email) {
+      return res.status(400).send(`You've already registered`);
+    }
+  }
+  addNewUser();
+  res.cookie('userId', users[randomString].id);
+  console.log('new email registered:', users);
   res.redirect('/urls');
 });
 
