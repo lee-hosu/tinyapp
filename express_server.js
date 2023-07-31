@@ -125,7 +125,7 @@ app.post('/login', (req, res) => {
 //Logout
 app.post('/logout', (req, res) => {
   res.clearCookie('userId');
-  res.redirect('/urls');
+  res.redirect('/login');
 });
 
 // User Registration
