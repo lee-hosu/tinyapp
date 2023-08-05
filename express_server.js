@@ -35,17 +35,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // ROUTE
-// READ
+
 app.get('/urls/new', (req, res) => {
   const user = users[req.cookies['userId']];
-  const templateVars = { user, urls: urlDatabase };
-  res.render('urls_new', templateVars);
-});
-
-app.get('/urls', (req, res) => {
-  const user = users[req.cookies['userId']];
-  const templateVars = { user, urls: urlDatabase };
-  res.render('urls_index', templateVars);
+  if (!user) {
+    res.redirect('/login');
+  } else {
+    const templateVars = { user, urls: urlDatabase };
+    res.render('urls_new', templateVars);
+  }
 });
 
 // :id - variable part of the URL ex. /urls/b2xVn2
@@ -56,7 +54,14 @@ app.get('/urls/:id', (req, res) => {
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
   };
-  res.render('urls_show', templateVars);
+  console.log(`${templateVars.longURL}`);
+  console.log(`${templateVars.id}`);
+  console.log(urlDatabase);
+  if (templateVars.longURL === undefined) {
+    res.send('Short URL Does not exist');
+  } else {
+    res.render('urls_show', templateVars);
+  }
 });
 
 // redirect to long URL
@@ -65,15 +70,24 @@ app.get('/u/:id', (req, res) => {
   res.redirect(longURL);
 });
 
-// CREATE
+// URLs
+app.get('/urls', (req, res) => {
+  const user = users[req.cookies['userId']];
+  const templateVars = { user, urls: urlDatabase };
+  res.render('urls_index', templateVars);
+});
+
 // Form submit - post request
 app.post('/urls', (req, res) => {
   console.log(req.body); // Log the POST request body to the console
-  const randomString = generateRandomString(6);
-  urlDatabase[randomString] = req.body['longURL'];
-  console.log(urlDatabase);
-  res.redirect(`/urls/${randomString}`);
-  // res.send('Ok'); // Respond with 'Ok' (we will replace this)
+  if (!user) {
+    res.send(`Cannot shorten URLs - Please log in`);
+  } else {
+    const randomString = generateRandomString(6);
+    urlDatabase[randomString] = req.body['longURL'];
+    console.log(urlDatabase);
+    res.redirect(`/urls/${randomString}`);
+  }
 });
 
 // Edit URL
