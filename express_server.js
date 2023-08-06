@@ -60,11 +60,19 @@ app.get('/urls/:id', (req, res) => {
     id: req.params.id,
     longURL: urlDatabase[req.params.id].longURL,
   };
-  // handle short url ids that do not exist
-  if (templateVars.longURL === undefined) {
-    res.send('Short URL Does not exist');
+
+  if (!user) {
+    res.send('Please Login or Register');
+  } else if (req.cookies['userId'] !== urlDatabase[req.params.id].userID) {
+    res.send('You do not have an access');
   } else {
-    res.render('urls_show', templateVars);
+    // handle short url ids that do not exist
+
+    if (templateVars.longURL === undefined) {
+      res.send('Short URL Does not exist');
+    } else {
+      res.render('urls_show', templateVars);
+    }
   }
 });
 
