@@ -9,8 +9,14 @@ const {
 } = require('./helpers');
 
 const urlDatabase = {
-  b2xVn2: 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com',
+  b6UTxQ: {
+    longURL: 'https://www.tsn.ca',
+    userID: 'aJ48lW',
+  },
+  i3BoGr: {
+    longURL: 'https://www.google.ca',
+    userID: 'aJ48lW',
+  },
 };
 
 const users = {
@@ -52,11 +58,9 @@ app.get('/urls/:id', (req, res) => {
   const templateVars = {
     user,
     id: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id].longURL,
   };
-  console.log(`${templateVars.longURL}`);
-  console.log(`${templateVars.id}`);
-  console.log(urlDatabase);
+  // handle short url ids that do not exist
   if (templateVars.longURL === undefined) {
     res.send('Short URL Does not exist');
   } else {
@@ -66,7 +70,7 @@ app.get('/urls/:id', (req, res) => {
 
 // redirect to long URL
 app.get('/u/:id', (req, res) => {
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id].longURL;
   res.redirect(longURL);
 });
 
@@ -80,6 +84,7 @@ app.get('/urls', (req, res) => {
 // Form submit - post request
 app.post('/urls', (req, res) => {
   console.log(req.body); // Log the POST request body to the console
+  let user = users[req.cookies['userId']];
   if (!user) {
     res.send(`Cannot shorten URLs - Please log in`);
   } else {
@@ -94,7 +99,7 @@ app.post('/urls', (req, res) => {
 app.post('/urls/:id', (req, res) => {
   const id = req.params.id;
   const newLongURL = req.body.longURL;
-  urlDatabase[id] = newLongURL;
+  urlDatabase[id].longURL = newLongURL;
   res.redirect('/urls');
 });
 
