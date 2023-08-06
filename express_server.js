@@ -11,11 +11,11 @@ const {
 const urlDatabase = {
   b6UTxQ: {
     longURL: 'https://www.tsn.ca',
-    userID: 'aJ48lW',
+    userID: 'abcd',
   },
   i3BoGr: {
     longURL: 'https://www.google.ca',
-    userID: 'aJ48lW',
+    userID: 'abcd',
   },
 };
 
@@ -77,8 +77,26 @@ app.get('/u/:id', (req, res) => {
 // URLs
 app.get('/urls', (req, res) => {
   const user = users[req.cookies['userId']];
-  const templateVars = { user, urls: urlDatabase };
-  res.render('urls_index', templateVars);
+  const logInUser = req.cookies['userId'];
+
+  let urlsForUser = function (id) {
+    let filteredObj = {};
+    for (const key in urlDatabase) {
+      let filtered = urlDatabase[key];
+      if (filtered.userID === id) {
+        filteredObj[key] = filtered;
+      }
+    }
+    return filteredObj;
+  };
+
+  const templateVars = { user, urls: urlsForUser(logInUser) };
+  if (!user) {
+    res.send('Please Login or Register first');
+  } else {
+    console.log(urlsForUser(logInUser));
+    res.render('urls_index', templateVars);
+  }
 });
 
 // Form submit - post request
@@ -89,8 +107,9 @@ app.post('/urls', (req, res) => {
     res.send(`Cannot shorten URLs - Please log in`);
   } else {
     const randomString = generateRandomString(6);
-    urlDatabase[randomString] = req.body['longURL'];
+    urlDatabase[randomString] = { longURL: req.body['longURL'] };
     console.log(urlDatabase);
+    console.log(req.body['longURL']);
     res.redirect(`/urls/${randomString}`);
   }
 });
