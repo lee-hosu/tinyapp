@@ -111,11 +111,15 @@ app.get('/urls', (req, res) => {
 app.post('/urls', (req, res) => {
   console.log(req.body); // Log the POST request body to the console
   let user = users[req.cookies['userId']];
+  const logInUser = req.cookies['userId'];
   if (!user) {
     res.send(`Cannot shorten URLs - Please log in`);
   } else {
     const randomString = generateRandomString(6);
-    urlDatabase[randomString] = { longURL: req.body['longURL'] };
+    urlDatabase[randomString] = {
+      longURL: req.body['longURL'],
+      userID: logInUser,
+    };
     console.log(urlDatabase);
     console.log(req.body['longURL']);
     res.redirect(`/urls/${randomString}`);
