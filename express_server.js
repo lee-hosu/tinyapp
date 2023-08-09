@@ -41,7 +41,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // ROUTE
-
 app.get('/urls/new', (req, res) => {
   const user = users[req.cookies['userId']];
   if (!user) {
@@ -86,7 +85,7 @@ app.get('/u/:id', (req, res) => {
 app.get('/urls', (req, res) => {
   const user = users[req.cookies['userId']];
   const logInUser = req.cookies['userId'];
-
+  console.log('user in the GET', req.cookies['userId']);
   let urlsForUser = function (id) {
     let filteredObj = {};
     for (const key in urlDatabase) {
@@ -137,11 +136,23 @@ app.post('/urls/:id', (req, res) => {
 // Delete URL
 app.post('/urls/:id/delete', (req, res) => {
   const id = req.params.id;
+  const user = users[req.cookies['userId']];
+  console.log('user', req.cookies['userId']);
+
+  if (!user) {
+    res.status(403).send('Please login or Register');
+  } else if (!urlDatabase[id]) {
+    return res.status(404).send('Short URL does not exist');
+  } else if (urlDatabase[id].userID !== user.id) {
+    return res.status(403).send('You do not own this URL');
+  }
+
   for (let key in urlDatabase) {
     if (key === id) {
       delete urlDatabase[key];
     }
   }
+
   res.redirect('/urls');
 });
 
@@ -213,19 +224,6 @@ app.post('/register', (req, res) => {
   res.cookie('userId', updateUsers);
   console.log('new email registered:', users);
   res.redirect('/urls');
-});
-
-// EXAMPLE CODE
-app.get('/', (req, res) => {
-  res.send('Hello!');
-});
-
-app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get('/hello', (req, res) => {
-  res.send('<html><body>Hello <b>World</b></body></html>\n');
 });
 
 // LISTEN
