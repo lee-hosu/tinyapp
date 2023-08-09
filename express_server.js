@@ -1,5 +1,6 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8080; // default port 8080
 const {
@@ -170,6 +171,7 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const foundUser = getUserByEmail(email, users);
+
   if (!email || !password) {
     res.status(400).send('You must provide an email AND a password');
   }
@@ -179,7 +181,7 @@ app.post('/login', (req, res) => {
   }
 
   // If the password is incorrect
-  if (foundUser.password !== password) {
+  if (!bcrypt.compareSync(password, foundUser.password)) {
     return res.status(400).send('You got the wrong password');
   }
 
@@ -209,6 +211,7 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
 
   // if user does NOT put in a password or email
   if (!email || !password) {
@@ -220,7 +223,7 @@ app.post('/register', (req, res) => {
     return res.status(400).send(`You've already registered`);
   }
 
-  const updateUsers = addNewUser(email, password, users);
+  const updateUsers = addNewUser(email, hashedPassword, users);
   res.cookie('userId', updateUsers);
   console.log('new email registered:', users);
   res.redirect('/urls');

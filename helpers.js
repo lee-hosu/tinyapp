@@ -19,7 +19,7 @@ const getUserByEmail = function (email, users) {
       foundUser = users[userId];
     }
   }
-  console.log(foundUser);
+  console.log('foundUser', foundUser);
 
   return foundUser;
 };
