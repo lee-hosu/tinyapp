@@ -50,8 +50,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieSession(cookieSessionConfig));
 
 // ROUTE
+app.get('/', (req, res) => {
+  res.send('<h1>Tiny App</h1>');
+});
+
 app.get('/urls/new', (req, res) => {
-  const user = req.session.userId;
+  const userId = req.session.userId;
+  const user = users[userId];
+
   if (!user) {
     res.redirect('/login');
   } else {
@@ -62,7 +68,9 @@ app.get('/urls/new', (req, res) => {
 
 // :id - variable part of the URL ex. /urls/b2xVn2
 app.get('/urls/:id', (req, res) => {
-  const user = req.session.userId;
+  const userId = req.session.userId;
+  const user = users[userId];
+
   const templateVars = {
     user,
     id: req.params.id,
@@ -92,8 +100,8 @@ app.get('/u/:id', (req, res) => {
 
 // URLs
 app.get('/urls', (req, res) => {
-  const user = req.session.userId;
-  console.log('user in the GET', req.session.userId);
+  const userId = req.session.userId;
+  const user = users[userId];
   let urlsForUser = function (id) {
     let filteredObj = {};
     for (const key in urlDatabase) {
@@ -105,11 +113,10 @@ app.get('/urls', (req, res) => {
     return filteredObj;
   };
 
-  const templateVars = { user, urls: urlsForUser(user) };
+  const templateVars = { user, urls: urlsForUser(userId) };
   if (!user) {
     res.send('Please Login or Register first');
   } else {
-    console.log('urlsForUser', urlsForUser(user));
     res.render('urls_index', templateVars);
   }
 });
@@ -166,7 +173,9 @@ app.post('/urls/:id/delete', (req, res) => {
 
 // Login
 app.get('/login', (req, res) => {
-  const user = req.session.userId;
+  const userId = req.session.userId;
+  const user = users[userId];
+
   if (user) {
     res.redirect('/urls');
   } else {
@@ -206,7 +215,8 @@ app.post('/logout', (req, res) => {
 
 // User Registration
 app.get('/register', (req, res) => {
-  const user = req.session.userId;
+  const userId = req.session.userId;
+  const user = users[userId];
   console.log('/register - user', user);
   if (user) {
     res.redirect('urls');
