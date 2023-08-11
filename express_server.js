@@ -51,7 +51,14 @@ app.use(cookieSession(cookieSessionConfig));
 
 // ROUTE
 app.get('/', (req, res) => {
-  res.send('<h1>Tiny App</h1>');
+  const userId = req.session.userId;
+  const user = users[userId];
+
+  if (!user) {
+    res.redirect('/login');
+  } else {
+    res.redirect('/urls');
+  }
 });
 
 app.get('/urls/new', (req, res) => {
